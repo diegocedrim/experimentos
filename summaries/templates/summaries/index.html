@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Sumários </h1>
+</div>
+
+{% if answers %}
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th width="60%">Classe a ser Analisada</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for answer in answers %}
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td><a href="{% url 'summaries:details' answer.summary.id %}">{{ answer.summary.element_fqn }}</a></td>
+        <td>
+            {% if answer.answer %}
+                <span class="label label-success">Respondido</span>
+            {% else %}
+                <span class="label label-default">A responder</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<hr/>
+
+<a href="{% url 'summaries:finish' %}" class="btn pull-right btn-danger btn-lg" role="button">Encerrar</a>
+{% endif %}
+{% endblock %}
+

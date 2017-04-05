@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Sumário
+        <small>{{ summary.element_fqn }}</small>
+    </h1>
+</div>
+
+<form class="form-horizontal" method="post" action="{% url 'summaries:save' summary.id %}">
+    {% csrf_token %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Aglomeraçoes</strong></div>
+        <div class="panel-body">
+            Panel content
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Anomalias de Código (Code Smells)</strong></div>
+        <div class="panel-body">
+            {% for instance in smells_instances %}
+            <dl class="dl-horizontal">
+                <dt>Anomalia</dt>
+                <dd>{{instance.smell.name}}</dd>
+                <dt>Descrição</dt>
+                <dd>{{instance.smell.description}}</dd>
+                <dt>Aglomerado?</dt>
+                <dd>{% if instance.is_part_of_agglomeration %} Sim {% else %} Não {% endif %}</dd>
+                <dt>Elemento</dt>
+                <dd>{{instance.affected_element}}</dd>
+                <dt>Razão</dt>
+                <dd>{{instance.reason}}</dd>
+                <dt>É Smell?</dt>
+                <dd><input type="checkbox" name="is_smell_{{instance.id}}" {% if instance.is_smell_by_user %} checked {% endif %}/></dd>
+            </dl>
+            {% if not forloop.last %}
+            <hr/>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Princípios de Design Violados</strong></div>
+        <div class="panel-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Princípio</th>
+                    <th>Descrição</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for instance in summary.designprincipleinstance_set.all %}
+                <tr>
+                    <td>{{ instance.design_principle.name }}</td>
+                    <td>{{ instance.design_principle.description }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Atributos Não Funcionais</strong></div>
+        <div class="panel-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Atributo</th>
+                    <th>Descrição</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for instance in summary.nonfunctionalattributeinstance_set.all %}
+                <tr>
+                    <td>{{ instance.non_functional_attribute.name }}</td>
+                    <td>{{ instance.non_functional_attribute.description }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Padrões de Projeto</strong></div>
+        <div class="panel-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th width="15%">Padrão</th>
+                    <th width="40%">Descrição</th>
+                    <th>Elementos Envolvidos</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for instance in summary.designpatterninstance_set.all %}
+                <tr>
+                    <td>{{ instance.design_pattern.name }}</td>
+                    <td>{{ instance.design_pattern.description }}</td>
+                    <td>
+                        <ul>
+                            {% for el in instance.elements_list %}
+                            <li>{{el}}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Informações Adicionais</strong></div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="rel_aglomeracao" class="col-sm-2 control-label">Aglomerações</label>
+                <div class="col-sm-10">
+                    <select id="rel_aglomeracao" name="rel_aglomeracao" class="form-control" required>
+                        <option disabled selected value> -- selecione uma opção -- </option>
+                        {% for imp in importance %}
+                        <option value="{{imp.0}}" {% if answer.agglomeration_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rel_dpatterns" class="col-sm-2 control-label">Padrões de Projeto</label>
+                <div class="col-sm-10">
+                    <select id="rel_dpatterns" name="rel_dpatterns" class="form-control" required>
+                        <option disabled selected value> -- selecione uma opção -- </option>
+                        {% for imp in importance %}
+                        <option value="{{imp.0}}" {% if answer.design_patterns_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rel_smells" class="col-sm-2 control-label">Anomalias de Código</label>
+                <div class="col-sm-10">
+                    <select id="rel_smells" name="rel_smells" class="form-control" required>
+                        <option disabled selected value> -- selecione uma opção -- </option>
+                        {% for imp in importance %}
+                        <option value="{{imp.0}}" {% if answer.smells_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rel_dprinciples" class="col-sm-2 control-label">Princípios de Design</label>
+                <div class="col-sm-10">
+                    <select id="rel_dprinciples" name="rel_dprinciples" class="form-control" required>
+                        <option disabled selected value> -- selecione uma opção -- </option>
+                        {% for imp in importance %}
+                        <option value="{{imp.0}}" {% if answer.design_principles_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rel_examples" class="col-sm-2 control-label">Exemplos</label>
+                <div class="col-sm-10">
+                    <select id="rel_examples" name="rel_examples" class="form-control" required>
+                        <option disabled selected value> -- selecione uma opção -- </option>
+                        {% for imp in importance %}
+                        <option value="{{imp.0}}" {% if answer.examples_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="observations" class="col-sm-2 control-label">Problema Identificado</label>
+                <div class="col-sm-10">
+                    <textarea id="observations" name="observations" class="form-control" rows="3" required>{{ answer.observations }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn pull-right btn btn-success btn-lg">Salvar</button>
+
+</form>
+
+
+{% endblock %}
+

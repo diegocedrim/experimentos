@@ -2,6 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from .models import *
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
 class CodeSmellInstanceInline(admin.StackedInline):
@@ -28,14 +29,30 @@ class DesignPatternInstanceInline(admin.StackedInline):
 class SummaryAdmin(admin.ModelAdmin):
     inlines = [CodeSmellInstanceInline, DesignPrincipleInstanceInline,
                NonFunctionalAttributeInstanceInline, DesignPatternInstanceInline]
-    list_display = ('element_fqn',)
+    list_display = ('element_fqn','system')
 
 
-admin.site.register(AgglomerationElement)
-admin.site.register(ElementRelationship)
-admin.site.register(Agglomeration)
+# Define an inline admin descriptor for Employee model
+# which acts a bit like a singleton
+class UserSubjectInline(admin.StackedInline):
+    model = UserSubject
+    can_delete = False
+    verbose_name_plural = 'subjects'
+
+
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    inlines = (UserSubjectInline, )
+
+
+admin.site.register(SummaryAnswerCodeSmell)
+admin.site.register(System)
+admin.site.register(SummaryAnswer)
 admin.site.register(CodeSmell)
 admin.site.register(DesignPrinciple)
 admin.site.register(DesignPattern)
 admin.site.register(NonFunctionalAttribute)
 admin.site.register(Summary, SummaryAdmin)
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)

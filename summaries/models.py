@@ -2,23 +2,37 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.contrib.auth.models import User
 
 # Create your models here.
 
 
 @python_2_unicode_compatible
+class System(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
 class Summary(models.Model):
     element_fqn = models.CharField(max_length=1000)
-    similar_summaries = models.ManyToManyField("self", symmetrical=False)
-    agglomeration = models.OneToOneField(
-        "Agglomeration",
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
+    similar_summaries = models.ManyToManyField("self", symmetrical=False, blank=True)
+    agglomeration = models.TextField(blank=True, null=True)
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.element_fqn
+
+    def answer(self, user):
+        result = SummaryAnswer.objects.filter(summary__id=self.id, user__id=user.id)
+        if result:
+            return result[0]
+        return None
+
+    def element_fqn_short(self):
+        return self.element_fqn.split(".")[-1]
 
     class Meta:
         verbose_name = 'Summary'
@@ -97,58 +111,42 @@ class DesignPatternInstance(models.Model):
     design_pattern = models.ForeignKey(DesignPattern, on_delete=models.CASCADE)
     elements_involved = models.TextField(default='')
 
+    def elements_list(self):
+        return [i.strip() for i in self.elements_involved.split("\n")]
+
     def __str__(self):
         return self.design_pattern.name
 
 
-class Agglomeration(models.Model):
-    elements = models.ManyToManyField("AgglomerationElement", symmetrical=False)
-    relationships = models.ManyToManyField("ElementRelationship", symmetrical=False)
-
-
 @python_2_unicode_compatible
-class AgglomerationElement(models.Model):
-    fqn = models.CharField(max_length=250)
+class SummaryAnswer(models.Model):
+    summary = models.ForeignKey(Summary, on_delete=models.CASCADE)
+    observations = models.TextField(default='')
+    user = models.ForeignKey(User)
+    IMPORTANCE = (
+        ('0', 'Irrelevante'),
+        ('1', 'Relevante'),
+        ('2', 'Muito Relevante')
+    )
+    agglomeration_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+    design_patterns_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+    smells_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+    design_principles_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+    examples_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+
+
 
     def __str__(self):
-        return self.fqn
+        return "Answer of %s to %s" % (self.user.username, self.summary.element_fqn)
 
 
-class ElementRelationship(models.Model):
-    element_from = models.ForeignKey(AgglomerationElement, on_delete=models.CASCADE, related_name='element_from')
-    element_to = models.ForeignKey(AgglomerationElement, on_delete=models.CASCADE, related_name='element_to')
-    RELATIONSHIP_CHOICES = (
-        ('A', 'Association'),
-        ('DA', 'Directed Association'),
-        ('AG', 'Aggregation'),
-        ('C', 'Composition'),
-        ('I', 'Inheritance'),
-        ('R', 'Realization'),
-    )
-    relationship = models.CharField(
-        max_length=2,
-        choices=RELATIONSHIP_CHOICES,
-        default='A'
-    )
+class SummaryAnswerCodeSmell(models.Model):
+    summary_answer = models.ForeignKey(SummaryAnswer, on_delete=models.CASCADE)
+    instance = models.ForeignKey(CodeSmellInstance, on_delete=models.CASCADE)
+    is_smell = models.BooleanField()
 
-    def __str__(self):
-        return "(%s)-[%s]->(%s)" % (self.element_from.fqn, self.relationship, self.element_to.fqn)
 
-# @python_2_unicode_compatible
-# class Agglomeration(models.Model):
-#     summary = models.ForeignKey(Summary, on_delete=models.CASCADE)
-#
-#
-#
-#
-# @python_2_unicode_compatible
-# class DesignPatternElement(models.Model):
-#     summary = models.ForeignKey(DesignPattern, on_delete=models.CASCADE)
-#     element_fqn = models.CharField(max_length=1000)
-#
-#
-# @python_2_unicode_compatible
-# class DesignPrinciple(models.Model):
-#     name = models.CharField(max_length=200)
-#     description = models.TextField()
-#     summary = models.ForeignKey(Summary, on_delete=models.CASCADE)
+class UserSubject(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    on_experiment = models.BooleanField(default=True)
