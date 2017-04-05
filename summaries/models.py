@@ -19,8 +19,14 @@ class System(models.Model):
 class Summary(models.Model):
     element_fqn = models.CharField(max_length=1000)
     similar_summaries = models.ManyToManyField("self", symmetrical=False, blank=True)
-    agglomeration = models.TextField(blank=True, null=True)
     system = models.ForeignKey(System, on_delete=models.CASCADE)
+
+    # (elemento1[smell1, smell2, smell3, ...];elemento2[smell1,smell2...];A
+    # opcoes de tipo de relacionamento:
+    #   - A: Association (biderecional)
+    #   - I: Inheritance
+    #   - R: Realization
+    agglomeration = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.element_fqn
@@ -33,6 +39,38 @@ class Summary(models.Model):
 
     def element_fqn_short(self):
         return self.element_fqn.split(".")[-1]
+
+    def parse_node(self, element):
+        if "[" in element:
+            fqn = element[:element.find("[")]
+            smells = [i.strip() for i in element[element.find("[") + 1: -1].split(",")]
+        else:
+            fqn = element
+            smells = set()
+        return {"fqn": fqn, "smells":smells}
+
+    def parse_agglomerations(self):
+        self.nodes = set()
+        self.edges = set()
+        self.smells = {}
+        if not self.agglomeration:
+            return
+        agg_parts = [i.strip() for i in self.agglomeration.split("\n")]
+        for part in agg_parts:
+            el_from, el_to, rel = part.split(";")
+            node_from = self.parse_node(el_from)
+            self.nodes.add(node_from["fqn"])
+            self.smells[node_from["fqn"]] = node_from["smells"]
+
+            node_to = self.parse_node(el_to)
+            self.nodes.add(node_to["fqn"])
+            self.smells[node_to["fqn"]] = node_to["smells"]
+
+            self.edges.add((node_from["fqn"], node_to["fqn"], rel))
+        print self.nodes
+        print self.edges
+        print self.smells
+
 
     class Meta:
         verbose_name = 'Summary'

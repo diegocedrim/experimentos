@@ -13,8 +13,8 @@
     {% csrf_token %}
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Aglomeraçoes</strong></div>
-        <div class="panel-body">
-            Panel content
+        <div class="panel-body" style="height: 400px; padding: 0px;">
+            <div id="agg_network"></div>
         </div>
     </div>
 
@@ -188,6 +188,50 @@
     <button type="submit" class="btn pull-right btn btn-success btn-lg">Salvar</button>
 
 </form>
+{{summary.nodes}}
+
+<script type="text/javascript">
+  // create an array with nodes
+  var nodes = new vis.DataSet([
+    {% for node in summary.nodes %}
+       {id: '{{node}}', label: '{{node}}', title:'{{ summary.smells|get_item:node }}'},
+    {% endfor %}
+  ]);
+
+  // create an array with edges
+  var edges = new vis.DataSet([
+    {% for edge in summary.edges %}
+        {% if edge.2 == 'R' %}
+            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to', dashes:true},
+        {% endif %}
+        {% if edge.2 == 'I' %}
+            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to'},
+        {% endif %}
+        {% if edge.2 == 'A' %}
+            {from: '{{edge.0}}', to: '{{edge.1}}'},
+        {% endif %}
+    {% endfor %}
+  ]);
+
+  // create a network
+  var container = document.getElementById('agg_network');
+  var data = {
+    nodes: nodes,
+    edges: edges
+  };
+  var options = {
+    nodes: {
+            shape: 'box',
+            borderWidth: 1,
+            shadow:true
+        },
+        edges: {
+            width: 1,
+            shadow:true
+        }
+  };
+  var network = new vis.Network(container, data, options);
+</script>
 
 
 {% endblock %}

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.template.defaulttags import register
 # Create your views here.
 
 
@@ -24,6 +25,12 @@ def index(request):
     return render(request, 'summaries/index.html', context)
 
 
+@register.filter
+def get_item(dictionary, key):
+    if len(dictionary[key]) == 0:
+        return 'Nenhuma anomalia encontrada'
+    return ", ".join(list(dictionary.get(key)))
+
 @login_required
 def details(request, summary_id):
     user_subject = UserSubject.objects.get(user__id=request.user.id)
@@ -41,6 +48,7 @@ def details(request, summary_id):
             if result:
                 instance.is_smell_by_user = result[0].is_smell
 
+    summary.parse_agglomerations()
     context = {'summary': summary,
                'answer':answer,
                'smells_instances':smells_instances,
