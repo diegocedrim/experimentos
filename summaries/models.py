@@ -170,6 +170,7 @@ class SummaryAnswer(models.Model):
     smells_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
     design_principles_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
     examples_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+    non_functional_ratings = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
 
 
 

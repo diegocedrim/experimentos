@@ -26,6 +26,7 @@
 <form class="form-horizontal" method="post" action="{% url 'summaries:save' summary.id %}">
     {% csrf_token %}
     <div id="basic_information_container">
+        {% if summary.nodes %}
         <div class="panel panel-default" id="agglomerations">
             <div class="panel-heading">
                 <a data-toggle="collapse" href="#agg_collapse">
@@ -36,7 +37,9 @@
                 <div id="agg_network"></div>
             </div>
         </div>
+        {% endif %}
 
+        {% if smells_instances %}
         <div class="panel panel-default" id="code_smells">
             <div class="panel-heading">
                 <a data-toggle="collapse" href="#anomalies_collapse">
@@ -65,7 +68,9 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if summary.nonfunctionalattributeinstance_set.all %}
         <div class="panel panel-default" id="non_functional">
             <div class="panel-heading">
                 <a data-toggle="collapse" href="#nonfunc_collapse">
@@ -91,7 +96,9 @@
                 </table>
             </div>
         </div>
+        {% endif %}
 
+        {% if summary.designpatterninstance_set.all %}
         <div class="panel panel-default" id="design_patterns">
             <div class="panel-heading">
                 <a data-toggle="collapse" href="#dpatterns_collapse">
@@ -125,7 +132,9 @@
                 </table>
             </div>
         </div>
+        {% endif %}
 
+        {% if summary.designprincipleinstance_set.all %}
         <div class="panel panel-default" id="design_principles">
             <div class="panel-heading">
                 <a data-toggle="collapse" href="#design_collapse">
@@ -151,27 +160,31 @@
                 </table>
             </div>
         </div>
+        {% endif %}
 
     </div>
 
+    {% if summary.similar_summaries.all %}
     <div class="panel panel-default" id="examples">
-            <div class="panel-heading">
-                <strong>Sumários com Características Similares</strong>
-            </div>
-            <div class="panel-body">
-                <ul>
-                    {% for similar in summary.similar_summaries.all %}
-                    <li>
-                        <a href="{% url 'summaries:details' similar.id %}">{{ similar.element_fqn }}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="panel-heading">
+            <strong>Sumários com Características Similares</strong>
         </div>
+        <div class="panel-body">
+            <ul>
+                {% for similar in summary.similar_summaries.all %}
+                <li>
+                    <a href="{% url 'summaries:details' similar.id %}">{{ similar.element_fqn }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Informações Adicionais</strong></div>
         <div class="panel-body">
+             {% if summary.nodes %}
             <div class="form-group">
                 <label for="rel_aglomeracao" class="col-sm-2 control-label">Aglomerações</label>
                 <div class="col-sm-10">
@@ -183,6 +196,9 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
+
+            {% if summary.designpatterninstance_set.all %}
             <div class="form-group">
                 <label for="rel_dpatterns" class="col-sm-2 control-label">Padrões de Projeto</label>
                 <div class="col-sm-10">
@@ -194,6 +210,9 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
+
+            {% if smells_instances %}
             <div class="form-group">
                 <label for="rel_smells" class="col-sm-2 control-label">Anomalias de Código</label>
                 <div class="col-sm-10">
@@ -205,6 +224,9 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
+
+            {% if summary.designprincipleinstance_set.all %}
             <div class="form-group">
                 <label for="rel_dprinciples" class="col-sm-2 control-label">Princípios de Design</label>
                 <div class="col-sm-10">
@@ -216,6 +238,23 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
+
+            {% if summary.nonfunctionalattributeinstance_set.all %}
+            <div class="form-group">
+                <label for="rel_nonfunc" class="col-sm-2 control-label">Atributos Não Funcionais</label>
+                <div class="col-sm-10">
+                    <select id="rel_nonfunc" name="rel_nonfunc" class="form-control" required>
+                        <option disabled selected value> -- selecione uma opção -- </option>
+                        {% for imp in importance %}
+                        <option value="{{imp.0}}" {% if answer.non_functional_ratings == imp.0 %} selected {% endif %}>{{imp.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if summary.similar_summaries.all %}
             <div class="form-group">
                 <label for="rel_examples" class="col-sm-2 control-label">Exemplos</label>
                 <div class="col-sm-10">
@@ -227,6 +266,8 @@
                     </select>
                 </div>
             </div>
+            {% endif %}
+
             <div class="form-group">
                 <label for="observations" class="col-sm-2 control-label">Problema Identificado</label>
                 <div class="col-sm-10">
@@ -240,6 +281,7 @@
 
 </form>
 
+{% if summary.nodes %}
 <script type="text/javascript">
   // create an array with nodes
   var nodes = new vis.DataSet([
@@ -298,8 +340,10 @@
     network.fit();
   })
 </script>
+{% endif %}
 
 <script src="{% static 'summaries/js/summary_details.js' %}"></script>
+
 
 
 {% endblock %}

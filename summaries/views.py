@@ -79,11 +79,12 @@ def save(request, summary_id):
         answer = SummaryAnswer()
         answer.user = request.user
         answer.summary = summary
-    answer.agglomeration_rating = request.POST['rel_aglomeracao']
-    answer.design_patterns_rating = request.POST['rel_dpatterns']
-    answer.smells_rating = request.POST['rel_smells']
-    answer.design_principles_rating = request.POST['rel_dprinciples']
-    answer.examples_rating = request.POST['rel_examples']
+    answer.agglomeration_rating = request.POST.get('rel_aglomeracao', None)
+    answer.design_patterns_rating = request.POST.get('rel_dpatterns', None)
+    answer.smells_rating = request.POST.get('rel_smells', None)
+    answer.design_principles_rating = request.POST.get('rel_dprinciples', None)
+    answer.examples_rating = request.POST.get('rel_examples', None)
+    answer.non_functional_ratings = request.POST.get('rel_nonfunc', None)
     answer.observations = request.POST['observations']
     answer.save()
 
