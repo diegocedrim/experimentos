@@ -60,16 +60,15 @@ class Summary(models.Model):
             el_from, el_to, rel = part.split(";")
             node_from = self.parse_node(el_from)
             self.nodes.add(node_from["fqn"])
-            self.smells[node_from["fqn"]] = node_from["smells"]
+            if node_from["fqn"] not in self.smells:
+                self.smells[node_from["fqn"]] = node_from["smells"]
 
             node_to = self.parse_node(el_to)
             self.nodes.add(node_to["fqn"])
-            self.smells[node_to["fqn"]] = node_to["smells"]
+            if node_to["fqn"] not in self.smells:
+                self.smells[node_to["fqn"]] = node_to["smells"]
 
             self.edges.add((node_from["fqn"], node_to["fqn"], rel))
-        print self.nodes
-        print self.edges
-        print self.smells
 
 
     class Meta:

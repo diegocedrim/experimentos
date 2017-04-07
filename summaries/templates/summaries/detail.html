@@ -32,7 +32,7 @@
                     <strong>Aglomerações</strong>
                 </a>
             </div>
-            <div class="panel-body collapse" id="agg_collapse" style="height: 400px; padding: 0px;">
+            <div class="panel-body collapse" id="agg_collapse" style="height: 600px; padding: 0px;">
                 <div id="agg_network"></div>
             </div>
         </div>
@@ -229,7 +229,11 @@
   // create an array with nodes
   var nodes = new vis.DataSet([
     {% for node in summary.nodes %}
-       {id: '{{node}}', label: '{{node}}', title:'{{ summary.smells|get_item:node }}'},
+       {% if node == summary.element_fqn %}
+            {id: '{{node}}', label: '{{node}}', title:'{{ summary.smells|get_item:node }}', color:'#FF6666'},
+       {% else %}
+            {id: '{{node}}', label: '{{node}}', title:'{{ summary.smells|get_item:node }}', color:'#97C2FC'},
+       {% endif %}
     {% endfor %}
   ]);
 
@@ -237,13 +241,13 @@
   var edges = new vis.DataSet([
     {% for edge in summary.edges %}
         {% if edge.2 == 'R' %}
-            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to', dashes:true},
+            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to', dashes:true, color:'#97C2FC'},
         {% endif %}
         {% if edge.2 == 'I' %}
-            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to'},
+            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to', color:'#97C2FC'},
         {% endif %}
         {% if edge.2 == 'A' %}
-            {from: '{{edge.0}}', to: '{{edge.1}}'},
+            {from: '{{edge.0}}', to: '{{edge.1}}', color:'#97C2FC'},
         {% endif %}
     {% endfor %}
   ]);
@@ -256,14 +260,22 @@
   };
   var options = {
     nodes: {
-            shape: 'box',
-            borderWidth: 1,
-            shadow:true
-        },
-        edges: {
-            width: 1,
-            shadow:true
+        shape: 'box',
+        borderWidth: 1,
+        shadow:true,
+        "physics": false
+    },
+    edges: {
+        width: 1,
+        shadow:true,
+        "smooth": {
+          "forceDirection": "none"
         }
+    },
+    "physics": {
+       "minVelocity": 0.75,
+        "solver": "repulsion"
+    }
   };
   var network = new vis.Network(container, data, options);
 
