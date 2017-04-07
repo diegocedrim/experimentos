@@ -85,13 +85,12 @@ def save(request, summary_id):
     answer.design_principles_rating = request.POST['rel_dprinciples']
     answer.examples_rating = request.POST['rel_examples']
     answer.observations = request.POST['observations']
+    answer.save()
 
     for sinstance in summary.codesmellinstance_set.all():
         smell_answer = get_smell_answer(answer, sinstance)
         smell_answer.is_smell = 'is_smell_%s' % sinstance.id in request.POST
         smell_answer.save()
-
-    answer.save()
 
     return HttpResponseRedirect(reverse('summaries:index'))
 

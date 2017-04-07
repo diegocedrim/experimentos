@@ -17,11 +17,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import RedirectView
-
+from settings import SUB_SITE
 urlpatterns = [
-    url(r'^$', RedirectView.as_view(url='summaries/', permanent=False), name='home'),
+    url(r'^$', RedirectView.as_view(url='%s/summaries/' % SUB_SITE, permanent=False), name='home'),
     url(r'^login/$', auth_views.login, {'template_name': 'login.html'}, name='login'),
-    url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '%s' % SUB_SITE}, name='logout'),
     url(r'^summaries/', include('summaries.urls')),
     url(r'^admin/', admin.site.urls)
 ]
