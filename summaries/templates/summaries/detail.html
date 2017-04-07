@@ -154,6 +154,21 @@
 
     </div>
 
+    <div class="panel panel-default" id="examples">
+            <div class="panel-heading">
+                <strong>Sumários com Características Similares</strong>
+            </div>
+            <div class="panel-body">
+                <ul>
+                    {% for similar in summary.similar_summaries.all %}
+                    <li>
+                        <a href="{% url 'summaries:details' similar.id %}">{{ similar.element_fqn }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Informações Adicionais</strong></div>
         <div class="panel-body">
