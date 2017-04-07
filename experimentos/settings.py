@@ -25,11 +25,12 @@ SECRET_KEY = 'p(!r%!)47@eyo0_n+8&kx6q!$24h1dbizg1r#j6x14h6w0$dj%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['opus.les.inf.puc-rio.br']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'surveys.apps.SurveysConfig',
     'summaries.apps.SummariesConfig',
     'django.contrib.admin',
     'django.contrib.auth',

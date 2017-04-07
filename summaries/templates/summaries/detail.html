@@ -6,116 +6,152 @@
 <div class="page-header">
     <h1>Sumário
         <small>{{ summary.element_fqn }}</small>
+        <div class="btn-group pull-right" role="group">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">
+                    Ordenar Seções
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" onclick="sort(alphabetical);">Alfabeticamente</a></li>
+                    <li><a href="#" onclick="sort(granularity_asc);">Granularidade (crescente)</a></li>
+                    <li><a href="#" onclick="sort(granularity_desc);">Granularidade (decrescente)</a></li>
+                </ul>
+            </div>
+        </div>
     </h1>
 </div>
 
 <form class="form-horizontal" method="post" action="{% url 'summaries:save' summary.id %}">
     {% csrf_token %}
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Aglomeraçoes</strong></div>
-        <div class="panel-body" style="height: 400px; padding: 0px;">
-            <div id="agg_network"></div>
+    <div id="basic_information_container">
+        <div class="panel panel-default" id="agglomerations">
+            <div class="panel-heading">
+                <a data-toggle="collapse" href="#agg_collapse">
+                    <strong>Aglomerações</strong>
+                </a>
+            </div>
+            <div class="panel-body collapse" id="agg_collapse" style="height: 400px; padding: 0px;">
+                <div id="agg_network"></div>
+            </div>
         </div>
-    </div>
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Anomalias de Código (Code Smells)</strong></div>
-        <div class="panel-body">
-            {% for instance in smells_instances %}
-            <dl class="dl-horizontal">
-                <dt>Anomalia</dt>
-                <dd>{{instance.smell.name}}</dd>
-                <dt>Descrição</dt>
-                <dd>{{instance.smell.description}}</dd>
-                <dt>Aglomerado?</dt>
-                <dd>{% if instance.is_part_of_agglomeration %} Sim {% else %} Não {% endif %}</dd>
-                <dt>Elemento</dt>
-                <dd>{{instance.affected_element}}</dd>
-                <dt>Razão</dt>
-                <dd>{{instance.reason}}</dd>
-                <dt>É Smell?</dt>
-                <dd><input type="checkbox" name="is_smell_{{instance.id}}" {% if instance.is_smell_by_user %} checked {% endif %}/></dd>
-            </dl>
-            {% if not forloop.last %}
-            <hr/>
-            {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Princípios de Design Violados</strong></div>
-        <div class="panel-body">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>Princípio</th>
-                    <th>Descrição</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for instance in summary.designprincipleinstance_set.all %}
-                <tr>
-                    <td>{{ instance.design_principle.name }}</td>
-                    <td>{{ instance.design_principle.description }}</td>
-                </tr>
+        <div class="panel panel-default" id="code_smells">
+            <div class="panel-heading">
+                <a data-toggle="collapse" href="#anomalies_collapse">
+                    <strong>Anomalias de Código (Code Smells)</strong>
+                </a>
+            </div>
+            <div class="panel-body collapse" id="anomalies_collapse" >
+                {% for instance in smells_instances %}
+                <dl class="dl-horizontal">
+                    <dt>Anomalia</dt>
+                    <dd>{{instance.smell.name}}</dd>
+                    <dt>Descrição</dt>
+                    <dd>{{instance.smell.description}}</dd>
+                    <dt>Aglomerado?</dt>
+                    <dd>{% if instance.is_part_of_agglomeration %} Sim {% else %} Não {% endif %}</dd>
+                    <dt>Elemento</dt>
+                    <dd>{{instance.affected_element}}</dd>
+                    <dt>Razão</dt>
+                    <dd>{{instance.reason}}</dd>
+                    <dt>É Smell?</dt>
+                    <dd><input type="checkbox" name="is_smell_{{instance.id}}" {% if instance.is_smell_by_user %} checked {% endif %}/></dd>
+                </dl>
+                {% if not forloop.last %}
+                <hr/>
+                {% endif %}
                 {% endfor %}
-                </tbody>
-            </table>
+            </div>
         </div>
-    </div>
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Atributos Não Funcionais</strong></div>
-        <div class="panel-body">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>Atributo</th>
-                    <th>Descrição</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for instance in summary.nonfunctionalattributeinstance_set.all %}
-                <tr>
-                    <td>{{ instance.non_functional_attribute.name }}</td>
-                    <td>{{ instance.non_functional_attribute.description }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="panel panel-default" id="non_functional">
+            <div class="panel-heading">
+                <a data-toggle="collapse" href="#nonfunc_collapse">
+                    <strong>Atributos Não Funcionais</strong>
+                </a>
+            </div>
+            <div class="panel-body collapse" id="nonfunc_collapse">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Atributo</th>
+                        <th>Descrição</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in summary.nonfunctionalattributeinstance_set.all %}
+                    <tr>
+                        <td>{{ instance.non_functional_attribute.name }}</td>
+                        <td>{{ instance.non_functional_attribute.description }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>Padrões de Projeto</strong></div>
-        <div class="panel-body">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th width="15%">Padrão</th>
-                    <th width="40%">Descrição</th>
-                    <th>Elementos Envolvidos</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for instance in summary.designpatterninstance_set.all %}
-                <tr>
-                    <td>{{ instance.design_pattern.name }}</td>
-                    <td>{{ instance.design_pattern.description }}</td>
-                    <td>
-                        <ul>
-                            {% for el in instance.elements_list %}
-                            <li>{{el}}</li>
-                            {% endfor %}
-                        </ul>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="panel panel-default" id="design_patterns">
+            <div class="panel-heading">
+                <a data-toggle="collapse" href="#dpatterns_collapse">
+                    <strong>Padrões de Projeto</strong>
+                </a>
+            </div>
+            <div class="panel-body collapse" id="dpatterns_collapse">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th width="15%">Padrão</th>
+                        <th width="40%">Descrição</th>
+                        <th>Elementos Envolvidos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in summary.designpatterninstance_set.all %}
+                    <tr>
+                        <td>{{ instance.design_pattern.name }}</td>
+                        <td>{{ instance.design_pattern.description }}</td>
+                        <td>
+                            <ul>
+                                {% for el in instance.elements_list %}
+                                <li>{{el}}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <div class="panel panel-default" id="design_principles">
+            <div class="panel-heading">
+                <a data-toggle="collapse" href="#design_collapse">
+                    <strong>Princípios de Design Violados</strong>
+                </a>
+            </div>
+            <div class="panel-body collapse" id="design_collapse">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Princípio</th>
+                        <th>Descrição</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in summary.designprincipleinstance_set.all %}
+                    <tr>
+                        <td>{{ instance.design_principle.name }}</td>
+                        <td>{{ instance.design_principle.description }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <div class="panel panel-default">
@@ -188,7 +224,6 @@
     <button type="submit" class="btn pull-right btn btn-success btn-lg">Salvar</button>
 
 </form>
-{{summary.nodes}}
 
 <script type="text/javascript">
   // create an array with nodes
@@ -231,7 +266,13 @@
         }
   };
   var network = new vis.Network(container, data, options);
+
+  $('#agg_collapse').on('shown.bs.collapse', function () {
+    network.fit();
+  })
 </script>
+
+<script src="{% static 'summaries/js/summary_details.js' %}"></script>
 
 
 {% endblock %}
