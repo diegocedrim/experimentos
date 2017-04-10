@@ -36,9 +36,10 @@ function setupRelevanceEvents() {
     var collapsable_panels = ['agg_collapse', 'anomalies_collapse', 'nonfunc_collapse',
         'dpatterns_collapse', 'design_collapse', 'examples_collapse'];
     for (var i = 0; i < collapsable_panels.length; i++) {
+        console.log(collapsable_panels[i]);
         $('#' + collapsable_panels[i]).on('show.bs.collapse', function (el) {
             var element_id = "#" + el.target.id;
-            $(element_id + " .radio-inline input[type=radio]").attr('checked', false);
+            $(element_id + " .radio-inline input[type=radio]").prop('required', true);
         });
     }
 }

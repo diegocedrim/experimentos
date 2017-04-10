@@ -47,6 +47,13 @@ def smells_relevance(request, summary_id):
 
 
 @login_required
+def all_smells(request):
+    smells = CodeSmell.objects.order_by('name')
+    context = {'smells': smells}
+    return render(request, 'summaries/all_smells.html', context)
+
+
+@login_required
 def save_smells_relevance(request, summary_id):
     user_subject = UserSubject.objects.get(user__id=request.user.id)
     # usuario encerrou o experimento, nao mostra nada
@@ -92,7 +99,7 @@ def details(request, summary_id):
                 instance.opinion = result[0].opinion
     else:
         answer = SummaryAnswer()
-    answer.initialize_ratings()
+
     opinions = CodeSmellOpinion.objects.all()
     summary.parse_agglomerations()
     context = {'summary': summary,
@@ -144,7 +151,8 @@ def save(request, summary_id):
             smell_answer.opinion = opinion
             smell_answer.save()
 
-    if summary.experiment.type.is_complete:
+    s_rating = answer.smells_rating
+    if summary.experiment.type.is_complete and s_rating is not None and s_rating != '0':
         return HttpResponseRedirect(reverse('summaries:smells_relevance', kwargs={'summary_id': summary_id}))
     else:
         return HttpResponseRedirect(reverse('summaries:index'))

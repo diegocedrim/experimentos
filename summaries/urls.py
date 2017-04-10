@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^finish/$', views.finish, name='finish'),
     url(r'^the_end/$', views.the_end, name='the_end'),
+    url(r'^all_smells/$', views.all_smells, name='all_smells'),
     url(r'^(?P<summary_id>[0-9]+)/$', views.details, name='details'),
     url(r'^(?P<summary_id>[0-9]+)/save/$', views.save, name='save'),
     url(r'^(?P<summary_id>[0-9]+)/save_smells_relevance/$', views.save_smells_relevance, name='save_smells_relevance'),

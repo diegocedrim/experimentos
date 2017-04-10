@@ -136,6 +136,7 @@ class DesignPrinciple(models.Model):
 class DesignPrincipleInstance(models.Model):
     summary = models.ForeignKey(Summary, on_delete=models.CASCADE, blank=True, null=True)
     design_principle = models.ForeignKey(DesignPrinciple, on_delete=models.CASCADE)
+    reason = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.design_principle.name
@@ -154,6 +155,7 @@ class NonFunctionalAttribute(models.Model):
 class NonFunctionalAttributeInstance(models.Model):
     summary = models.ForeignKey(Summary, on_delete=models.CASCADE, blank=True, null=True)
     non_functional_attribute = models.ForeignKey(NonFunctionalAttribute, on_delete=models.CASCADE)
+    reason = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.non_functional_attribute.name
@@ -173,6 +175,7 @@ class DesignPatternInstance(models.Model):
     summary = models.ForeignKey(Summary, on_delete=models.CASCADE, blank=True, null=True)
     design_pattern = models.ForeignKey(DesignPattern, on_delete=models.CASCADE)
     elements_involved = models.TextField(default='')
+    reason = models.TextField(null=True, blank=True)
 
     def elements_list(self):
         return [i.strip() for i in self.elements_involved.split("\n")]
@@ -192,12 +195,12 @@ class SummaryAnswer(models.Model):
         ('2', 'Bastante Relevante'),
         ('3', 'Muito Relevante')
     )
-    agglomeration_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
-    design_patterns_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
-    smells_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
-    design_principles_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
-    examples_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
-    non_functional_ratings = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
+    agglomeration_rating = models.CharField(max_length=1, choices=IMPORTANCE, default=None, blank=True, null=True)
+    design_patterns_rating = models.CharField(max_length=1, choices=IMPORTANCE, default=None, blank=True, null=True)
+    smells_rating = models.CharField(max_length=1, choices=IMPORTANCE, default=None, blank=True, null=True)
+    design_principles_rating = models.CharField(max_length=1, choices=IMPORTANCE, default=None, blank=True, null=True)
+    examples_rating = models.CharField(max_length=1, choices=IMPORTANCE, default=None, blank=True, null=True)
+    non_functional_ratings = models.CharField(max_length=1, choices=IMPORTANCE, default=None, blank=True, null=True)
 
     NAMES = {
         'agglomeration_rating': 'Aglomerações',
@@ -213,20 +216,6 @@ class SummaryAnswer(models.Model):
             if "_ratings" in prop and value is None:
                 return prop
         return None
-
-    def initialize_ratings(self):
-        if not self.agglomeration_rating:
-            self.agglomeration_rating = '0'
-        if not self.design_patterns_rating:
-            self.design_patterns_rating = '0'
-        if not self.smells_rating:
-            self.smells_rating = '0'
-        if not self.design_principles_rating:
-            self.design_principles_rating = '0'
-        if not self.examples_rating:
-            self.examples_rating = '0'
-        if not self.non_functional_ratings:
-            self.non_functional_ratings = '0'
 
     def __str__(self):
         return "Answer of %s to %s" % (self.user.username, self.summary.element_fqn)
