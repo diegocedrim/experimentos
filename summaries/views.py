@@ -25,11 +25,54 @@ def index(request):
     return render(request, 'summaries/index.html', context)
 
 
+@login_required
+def smells_relevance(request, summary_id):
+    user_subject = UserSubject.objects.get(user__id=request.user.id)
+    # usuario encerrou o experimento, nao mostra nada
+    if not user_subject.on_experiment:
+        return HttpResponseRedirect(reverse('summaries:the_end'))
+
+    summary = get_object_or_404(Summary, pk=summary_id)
+    answer = summary.answer(request.user)
+    smells_instances = summary.codesmellinstance_set.all()
+
+    for sinstance in smells_instances:
+        smell_answer = get_smell_answer(answer, sinstance)
+        sinstance.was_important = smell_answer.was_important
+
+    context = {'summary': summary,
+               'answer': answer,
+               'smells_instances': smells_instances}
+    return render(request, 'summaries/smells_relevance.html', context)
+
+
+@login_required
+def save_smells_relevance(request, summary_id):
+    user_subject = UserSubject.objects.get(user__id=request.user.id)
+    # usuario encerrou o experimento, nao mostra nada
+    if not user_subject.on_experiment:
+        return HttpResponseRedirect(reverse('summaries:the_end'))
+
+    summary = get_object_or_404(Summary, pk=summary_id)
+    answer = summary.answer(request.user)
+    if answer is None:
+        return HttpResponseRedirect(reverse('summaries:details', kwargs={'summary_id': summary_id}))
+
+    for sinstance in summary.codesmellinstance_set.all():
+        smell_answer = get_smell_answer(answer, sinstance)
+        was_important = request.POST["was_important_%s" % sinstance.id] == 'True'
+        smell_answer.was_important = was_important
+        smell_answer.save()
+
+    return HttpResponseRedirect(reverse('summaries:index'))
+
+
 @register.filter
 def get_item(dictionary, key):
     if len(dictionary[key]) == 0:
         return 'Nenhuma anomalia encontrada'
     return ", ".join(list(dictionary.get(key)))
+
 
 @login_required
 def details(request, summary_id):
@@ -70,6 +113,7 @@ def get_smell_answer(answer, instance):
         sacs.instance = instance
         return sacs
 
+
 @login_required
 def save(request, summary_id):
     user_subject = UserSubject.objects.get(user__id=request.user.id)
@@ -100,7 +144,10 @@ def save(request, summary_id):
             smell_answer.opinion = opinion
             smell_answer.save()
 
-    return HttpResponseRedirect(reverse('summaries:index'))
+    if summary.experiment.type.is_complete:
+        return HttpResponseRedirect(reverse('summaries:smells_relevance', kwargs={'summary_id': summary_id}))
+    else:
+        return HttpResponseRedirect(reverse('summaries:index'))
 
 
 @login_required

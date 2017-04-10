@@ -40,7 +40,6 @@ class Experiment(models.Model):
             return self.name
 
 
-
 @python_2_unicode_compatible
 class Summary(models.Model):
     element_fqn = models.CharField(max_length=1000)
@@ -250,6 +249,9 @@ class SummaryAnswerCodeSmell(models.Model):
 
     # se foi importante para detectar um problema de design
     was_important = models.NullBooleanField()
+
+    def __str__(self):
+        return "%s of %s by %s" % (self.instance.smell.name, self.summary_answer.summary, self.summary_answer.user)
 
 
 class UserSubject(models.Model):

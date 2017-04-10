@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Relevância dos Smells</h1>
+</div>
+
+{% for instance in smells_instances %}
+<form class="form-horizontal" method="post" action="{% url 'summaries:save_smells_relevance' summary.id %}">
+    {% csrf_token %}
+    <dl class="dl-horizontal">
+        <dt>Anomalia</dt>
+        <dd>{{instance.smell.name}}</dd>
+        <dt>Descrição</dt>
+        <dd>{{instance.smell.description}}</dd>
+        <dt>Aglomerado?</dt>
+        <dd>{% if instance.is_part_of_agglomeration %} Sim {% else %} Não {% endif %}</dd>
+        <dt>Elemento</dt>
+        <dd>{{instance.affected_element}}</dd>
+        <dt>Razão</dt>
+        <dd>{% autoescape off %}{{instance.reason}}{% endautoescape %}</dd>
+        <dt title="Foi importante na identificação do problema de design?">Foi importante?</dt>
+        <dd>
+            <label class="radio-inline">
+                <input type="radio" name="was_important_{{instance.id}}" required
+                       {% if instance.was_important == True %} checked {% endif %}
+                       value="True"/> Sim
+            </label>
+            <label class="radio-inline">
+                <input type="radio" name="was_important_{{instance.id}}" required
+                       {% if instance.was_important == False %} checked {% endif %}
+                       value="False"/> Não
+            </label>
+
+        </dd>
+    </dl>
+    <hr/>
+    {% endfor %}
+    <button type="submit" class="btn pull-right btn btn-success btn-lg">Salvar</button>
+</form>
+{% endblock %}
+
