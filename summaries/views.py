@@ -17,7 +17,7 @@ def index(request):
     if not user_subject.on_experiment:
         return HttpResponseRedirect(reverse('summaries:the_end'))
 
-    summaries = Summary.objects.filter(system__name=user_subject.system.name)
+    summaries = Summary.objects.filter(experiment__id=user_subject.experiment.id)
     answers = []
     for summary in summaries:
         answers.append({"summary":summary, "answer":summary.answer(request.user)})
@@ -47,7 +47,9 @@ def details(request, summary_id):
             result = SummaryAnswerCodeSmell.objects.filter(summary_answer__id=answer.id, instance__id=instance.id)
             if result:
                 instance.opinion = result[0].opinion
-
+    else:
+        answer = SummaryAnswer()
+    answer.initialize_ratings()
     opinions = CodeSmellOpinion.objects.all()
     summary.parse_agglomerations()
     context = {'summary': summary,
@@ -90,12 +92,13 @@ def save(request, summary_id):
     answer.observations = request.POST['observations']
     answer.save()
 
-    for sinstance in summary.codesmellinstance_set.all():
-        smell_answer = get_smell_answer(answer, sinstance)
-        opinion_id = request.POST["smell_opinion_%s" % sinstance.id]
-        opinion = get_object_or_404(CodeSmellOpinion, pk=opinion_id)
-        smell_answer.opinion = opinion
-        smell_answer.save()
+    if not summary.experiment.type.is_complete:
+        for sinstance in summary.codesmellinstance_set.all():
+            smell_answer = get_smell_answer(answer, sinstance)
+            opinion_id = request.POST["smell_opinion_%s" % sinstance.id]
+            opinion = get_object_or_404(CodeSmellOpinion, pk=opinion_id)
+            smell_answer.opinion = opinion
+            smell_answer.save()
 
     return HttpResponseRedirect(reverse('summaries:index'))
 

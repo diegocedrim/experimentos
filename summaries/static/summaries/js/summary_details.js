@@ -31,3 +31,21 @@ function sort(order_array){
         container.append(element);
     }
 }
+
+function setupRelevanceEvents() {
+    var collapsable_panels = ['agg_collapse', 'anomalies_collapse', 'nonfunc_collapse',
+        'dpatterns_collapse', 'design_collapse', 'examples_collapse'];
+    for (var i = 0; i < collapsable_panels.length; i++) {
+        $('#' + collapsable_panels[i]).on('show.bs.collapse', function (el) {
+            var element_id = "#" + el.target.id;
+            $(element_id + " .radio-inline input[type=radio]").attr('checked', false);
+        });
+    }
+}
+
+$(document).ready(function(){
+    $("form input").on("invalid", function(event) {
+        console.log(event.target.name);
+        $("input[name=" + event.target.name+ "]").closest(".collapse-caret").find("> .panel-body").collapse('show');
+    });
+});

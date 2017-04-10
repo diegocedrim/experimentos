@@ -7,29 +7,46 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-
-@python_2_unicode_compatible
-class System(models.Model):
-    name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
-
-
 # se é um sumário pra identificar problemas de design
 @python_2_unicode_compatible
-class SummaryType(models.Model):
+class ExperimentType(models.Model):
     description = models.CharField(max_length=100)
+
+    # se é completo ou se é só sobre smells
+    is_complete = models.BooleanField(default=True)
 
     def __str__(self):
         return self.description
 
 
 @python_2_unicode_compatible
+class System(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class Experiment(models.Model):
+    system = models.ForeignKey(System, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=200)
+    type = models.ForeignKey(ExperimentType, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        if self.system is not None:
+            return "%s/%s" % (self.system.name, self.name)
+        else:
+            return self.name
+
+
+
+@python_2_unicode_compatible
 class Summary(models.Model):
     element_fqn = models.CharField(max_length=1000)
     similar_summaries = models.ManyToManyField("self", symmetrical=False, blank=True)
-    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE, null=True)
+
 
     # (elemento1[smell1, smell2, smell3, ...];elemento2[smell1,smell2...];A
     # opcoes de tipo de relacionamento:
@@ -183,7 +200,34 @@ class SummaryAnswer(models.Model):
     examples_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
     non_functional_ratings = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
 
+    NAMES = {
+        'agglomeration_rating': 'Aglomerações',
+        'design_patterns_rating': ' Padrões de Projeto',
+        'smells_rating': 'Anomalias de Código (Code Smells)',
+        'design_principles_rating': ' Princípios de Design Violados',
+        'examples_rating': 'Sumários com Características Similares',
+        'non_functional_ratings': 'Atributos Não Funcionais Violados',
+    }
 
+    def validate(self):
+        for prop, value in vars(self).iteritems():
+            if "_ratings" in prop and value is None:
+                return prop
+        return None
+
+    def initialize_ratings(self):
+        if not self.agglomeration_rating:
+            self.agglomeration_rating = '0'
+        if not self.design_patterns_rating:
+            self.design_patterns_rating = '0'
+        if not self.smells_rating:
+            self.smells_rating = '0'
+        if not self.design_principles_rating:
+            self.design_principles_rating = '0'
+        if not self.examples_rating:
+            self.examples_rating = '0'
+        if not self.non_functional_ratings:
+            self.non_functional_ratings = '0'
 
     def __str__(self):
         return "Answer of %s to %s" % (self.user.username, self.summary.element_fqn)
@@ -210,5 +254,5 @@ class SummaryAnswerCodeSmell(models.Model):
 
 class UserSubject(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE, null=True)
     on_experiment = models.BooleanField(default=True)

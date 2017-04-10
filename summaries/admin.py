@@ -29,7 +29,7 @@ class DesignPatternInstanceInline(admin.StackedInline):
 class SummaryAdmin(admin.ModelAdmin):
     inlines = [CodeSmellInstanceInline, DesignPrincipleInstanceInline,
                NonFunctionalAttributeInstanceInline, DesignPatternInstanceInline]
-    list_display = ('element_fqn','system')
+    list_display = ('element_fqn','experiment')
 
 
 # Define an inline admin descriptor for Employee model
@@ -57,6 +57,8 @@ class SummaryAnswerAdmin(admin.ModelAdmin):
 
 admin.site.register(CodeSmellOpinion)
 admin.site.register(SummaryAnswerCodeSmell)
+admin.site.register(Experiment)
+admin.site.register(ExperimentType)
 admin.site.register(System)
 admin.site.register(SummaryAnswer, SummaryAnswerAdmin)
 admin.site.register(CodeSmell)

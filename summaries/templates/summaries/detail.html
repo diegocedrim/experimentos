@@ -61,7 +61,7 @@
 <form class="form-horizontal" method="post" action="{% url 'summaries:save' summary.id %}">
     {% csrf_token %}
     <div id="basic_information_container">
-        {% if summary.nodes %}
+        {% if summary.experiment.type.is_complete and summary.nodes %}
         <div class="panel panel-default collapse-caret" id="agglomerations">
             <div class="panel-heading">
                 <a class="collapsed collapse-toggle" data-toggle="collapse" href="#agg_collapse">
@@ -80,7 +80,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_aglomeracao" name="rel_aglomeracao"
+                            <input type="radio"  name="rel_aglomeracao" required
                                    {% if answer.agglomeration_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -111,21 +111,24 @@
                     <dd>{{instance.affected_element}}</dd>
                     <dt>Razão</dt>
                     <dd>{% autoescape off %}{{instance.reason}}{% endautoescape %}</dd>
+                    {% if not summary.experiment.type.is_complete %}
                     <dt>É Smell?</dt>
                     <dd>
                         {% for opinion in opinions %}
                         <div class="radio">
                             <label>
-                                <input type="radio" name="smell_opinion_{{instance.id}}"
+                                <input type="radio" name="smell_opinion_{{instance.id}}" required
                                      {% if opinion.id == instance.opinion.id %} checked {% endif %} value="{{opinion.id}}">
                                 {{ opinion.opinion }}
                             </label>
                         </div>
                         {% endfor %}
                     </dd>
+                    {% endif %}
                 </dl>
                 <hr/>
                 {% endfor %}
+                {% if summary.experiment.type.is_complete %}
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -135,18 +138,19 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_smells" name="rel_smells"
+                            <input type="radio"  id="rel_smells" name="rel_smells" required
                                    {% if answer.smells_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
 
-        {% if summary.nonfunctionalattributeinstance_set.all %}
+        {% if summary.experiment.type.is_complete and summary.nonfunctionalattributeinstance_set.all %}
         <div class="panel panel-default collapse-caret" id="non_functional">
             <div class="panel-heading">
                 <a class="collapsed collapse-toggle" data-toggle="collapse" href="#nonfunc_collapse">
@@ -179,7 +183,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_nonfunc" name="rel_nonfunc"
+                            <input type="radio"  id="rel_nonfunc" name="rel_nonfunc" required
                                    {% if answer.non_functional_ratings == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -190,7 +194,7 @@
         </div>
         {% endif %}
 
-        {% if summary.designpatterninstance_set.all %}
+        {% if summary.experiment.type.is_complete and summary.designpatterninstance_set.all %}
         <div class="panel panel-default collapse-caret" id="design_patterns">
             <div class="panel-heading">
                 <a class="collapsed collapse-toggle" data-toggle="collapse" href="#dpatterns_collapse">
@@ -231,7 +235,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_dpatterns" name="rel_dpatterns"
+                            <input type="radio"  id="rel_dpatterns" name="rel_dpatterns" required
                                    {% if answer.design_patterns_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -242,7 +246,7 @@
         </div>
         {% endif %}
 
-        {% if summary.designprincipleinstance_set.all %}
+        {% if summary.experiment.type.is_complete and summary.designprincipleinstance_set.all %}
         <div class="panel panel-default collapse-caret" id="design_principles">
             <div class="panel-heading">
                 <a class="collapsed collapse-toggle" data-toggle="collapse" href="#design_collapse">
@@ -275,7 +279,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_dprinciples" name="rel_dprinciples"
+                            <input type="radio"  id="rel_dprinciples" name="rel_dprinciples" required
                                    {% if answer.design_principles_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -288,7 +292,7 @@
 
     </div>
 
-    {% if summary.similar_summaries.all %}
+    {% if summary.experiment.type.is_complete and summary.similar_summaries.all %}
     <div class="panel panel-default collapse-caret" id="examples">
         <div class="panel-heading">
             <a class="collapsed collapse-toggle" data-toggle="collapse" href="#examples_collapse">
@@ -312,7 +316,7 @@
                 <div class="panel-body">
                     {% for imp in importance %}
                     <label class="radio-inline">
-                        <input type="radio"  id="rel_examples" name="rel_examples"
+                        <input type="radio"  id="rel_examples" name="rel_examples" required
                                {% if answer.examples_rating == imp.0 %} checked {% endif %}
                                value="{{imp.0}}"/> {{imp.1}}
                     </label>
@@ -400,13 +404,18 @@
 
   $('#agg_collapse').on('shown.bs.collapse', function () {
     network.fit();
-  })
+  });
+
 </script>
 {% endif %}
 
 <script src="{% static 'summaries/js/summary_details.js' %}"></script>
 
-
+{% if not answer.id %}
+<script type="text/javascript">
+    setupRelevanceEvents();
+</script>
+{% endif %}
 
 {% endblock %}
 
