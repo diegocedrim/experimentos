@@ -45,9 +45,20 @@ class UserAdmin(BaseUserAdmin):
     inlines = (UserSubjectInline, )
 
 
+class SummaryAnswerCodeSmellInline(admin.StackedInline):
+    model = SummaryAnswerCodeSmell
+    extra = 1
+
+
+class SummaryAnswerAdmin(admin.ModelAdmin):
+    inlines = [SummaryAnswerCodeSmellInline]
+    # list_display = ('element_fqn','system')
+
+
+admin.site.register(CodeSmellOpinion)
 admin.site.register(SummaryAnswerCodeSmell)
 admin.site.register(System)
-admin.site.register(SummaryAnswer)
+admin.site.register(SummaryAnswer, SummaryAnswerAdmin)
 admin.site.register(CodeSmell)
 admin.site.register(DesignPrinciple)
 admin.site.register(DesignPattern)

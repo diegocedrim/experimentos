@@ -1,3 +1,4 @@
+# coding=utf-8
 from __future__ import unicode_literals
 
 from django.db import models
@@ -13,6 +14,15 @@ class System(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# se é um sumário pra identificar problemas de design
+@python_2_unicode_compatible
+class SummaryType(models.Model):
+    description = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.description
 
 
 @python_2_unicode_compatible
@@ -162,8 +172,9 @@ class SummaryAnswer(models.Model):
     user = models.ForeignKey(User)
     IMPORTANCE = (
         ('0', 'Irrelevante'),
-        ('1', 'Relevante'),
-        ('2', 'Muito Relevante')
+        ('1', 'Pouco Relevante'),
+        ('2', 'Bastante Relevante'),
+        ('3', 'Muito Relevante')
     )
     agglomeration_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
     design_patterns_rating = models.CharField(max_length=1, choices=IMPORTANCE, default='0', blank=True, null=True)
@@ -178,10 +189,23 @@ class SummaryAnswer(models.Model):
         return "Answer of %s to %s" % (self.user.username, self.summary.element_fqn)
 
 
+#  opiniao dos desenvolvedores para cada uma das instancias de code smell
+@python_2_unicode_compatible
+class CodeSmellOpinion(models.Model):
+    opinion = models.TextField()
+
+    def __str__(self):
+        return self.opinion
+
+
+#  representa dados associados a uma instancia de um code smell respondidos por um usuario
 class SummaryAnswerCodeSmell(models.Model):
     summary_answer = models.ForeignKey(SummaryAnswer, on_delete=models.CASCADE)
     instance = models.ForeignKey(CodeSmellInstance, on_delete=models.CASCADE)
-    is_smell = models.BooleanField()
+    opinion = models.ForeignKey(CodeSmellOpinion, on_delete=models.CASCADE, null=True)
+
+    # se foi importante para detectar um problema de design
+    was_important = models.NullBooleanField()
 
 
 class UserSubject(models.Model):

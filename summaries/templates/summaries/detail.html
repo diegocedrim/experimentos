@@ -26,6 +26,12 @@
     content: "▸";
     margin-right: 0px;
 }
+#agg_network {
+  height: 500px;
+}
+.collapse-caret > .panel-body {
+    padding-bottom: 0px;
+}
 </style>
 
 {% endblock %}
@@ -64,6 +70,23 @@
             </div>
             <div class="panel-body collapse" id="agg_collapse" style="height: 600px; padding: 0px;">
                 <div id="agg_network"></div>
+
+                <div class="panel panel-info" style="margin: 15px;">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Qual a relevância desta seção?
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for imp in importance %}
+                        <label class="radio-inline">
+                            <input type="radio"  id="rel_aglomeracao" name="rel_aglomeracao"
+                                   {% if answer.agglomeration_rating == imp.0 %} checked {% endif %}
+                                   value="{{imp.0}}"/> {{imp.1}}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -75,7 +98,7 @@
                     <strong>Anomalias de Código (Code Smells)</strong>
                 </a>
             </div>
-            <div class="panel-body collapse" id="anomalies_collapse" >
+            <div class="panel-body collapse" id="anomalies_collapse">
                 {% for instance in smells_instances %}
                 <dl class="dl-horizontal">
                     <dt>Anomalia</dt>
@@ -87,14 +110,38 @@
                     <dt>Elemento</dt>
                     <dd>{{instance.affected_element}}</dd>
                     <dt>Razão</dt>
-                    <dd>{{instance.reason}}</dd>
+                    <dd>{% autoescape off %}{{instance.reason}}{% endautoescape %}</dd>
                     <dt>É Smell?</dt>
-                    <dd><input type="checkbox" name="is_smell_{{instance.id}}" {% if instance.is_smell_by_user %} checked {% endif %}/></dd>
+                    <dd>
+                        {% for opinion in opinions %}
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="smell_opinion_{{instance.id}}"
+                                     {% if opinion.id == instance.opinion.id %} checked {% endif %} value="{{opinion.id}}">
+                                {{ opinion.opinion }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </dd>
                 </dl>
-                {% if not forloop.last %}
                 <hr/>
-                {% endif %}
                 {% endfor %}
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Qual a relevância desta seção?
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for imp in importance %}
+                        <label class="radio-inline">
+                            <input type="radio"  id="rel_smells" name="rel_smells"
+                                   {% if answer.smells_rating == imp.0 %} checked {% endif %}
+                                   value="{{imp.0}}"/> {{imp.1}}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -123,6 +170,22 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Qual a relevância desta seção?
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for imp in importance %}
+                        <label class="radio-inline">
+                            <input type="radio"  id="rel_nonfunc" name="rel_nonfunc"
+                                   {% if answer.non_functional_ratings == imp.0 %} checked {% endif %}
+                                   value="{{imp.0}}"/> {{imp.1}}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -159,6 +222,22 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Qual a relevância desta seção?
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for imp in importance %}
+                        <label class="radio-inline">
+                            <input type="radio"  id="rel_dpatterns" name="rel_dpatterns"
+                                   {% if answer.design_patterns_rating == imp.0 %} checked {% endif %}
+                                   value="{{imp.0}}"/> {{imp.1}}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -187,6 +266,22 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Qual a relevância desta seção?
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for imp in importance %}
+                        <label class="radio-inline">
+                            <input type="radio"  id="rel_dprinciples" name="rel_dprinciples"
+                                   {% if answer.design_principles_rating == imp.0 %} checked {% endif %}
+                                   value="{{imp.0}}"/> {{imp.1}}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -208,101 +303,33 @@
                 </li>
                 {% endfor %}
             </ul>
+             <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Qual a relevância desta seção?
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    {% for imp in importance %}
+                    <label class="radio-inline">
+                        <input type="radio"  id="rel_examples" name="rel_examples"
+                               {% if answer.examples_rating == imp.0 %} checked {% endif %}
+                               value="{{imp.0}}"/> {{imp.1}}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
     {% endif %}
 
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Informações Adicionais</strong></div>
+        <div class="panel-heading"><strong>Validação do Problema</strong></div>
         <div class="panel-body">
-             {% if summary.nodes %}
             <div class="form-group">
-                <label for="rel_aglomeracao" class="col-sm-2 control-label">Aglomerações</label>
+                <label for="observations" class="col-sm-2 control-label">Observações</label>
                 <div class="col-sm-10">
-                    <select id="rel_aglomeracao" name="rel_aglomeracao" class="form-control" required>
-                        <option disabled selected value> -- selecione uma opção -- </option>
-                        {% for imp in importance %}
-                        <option value="{{imp.0}}" {% if answer.agglomeration_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if summary.designpatterninstance_set.all %}
-            <div class="form-group">
-                <label for="rel_dpatterns" class="col-sm-2 control-label">Padrões de Projeto</label>
-                <div class="col-sm-10">
-                    <select id="rel_dpatterns" name="rel_dpatterns" class="form-control" required>
-                        <option disabled selected value> -- selecione uma opção -- </option>
-                        {% for imp in importance %}
-                        <option value="{{imp.0}}" {% if answer.design_patterns_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if smells_instances %}
-            <div class="form-group">
-                <label for="rel_smells" class="col-sm-2 control-label">Anomalias de Código</label>
-                <div class="col-sm-10">
-                    <select id="rel_smells" name="rel_smells" class="form-control" required>
-                        <option disabled selected value> -- selecione uma opção -- </option>
-                        {% for imp in importance %}
-                        <option value="{{imp.0}}" {% if answer.smells_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if summary.designprincipleinstance_set.all %}
-            <div class="form-group">
-                <label for="rel_dprinciples" class="col-sm-2 control-label">Princípios de Design</label>
-                <div class="col-sm-10">
-                    <select id="rel_dprinciples" name="rel_dprinciples" class="form-control" required>
-                        <option disabled selected value> -- selecione uma opção -- </option>
-                        {% for imp in importance %}
-                        <option value="{{imp.0}}" {% if answer.design_principles_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if summary.nonfunctionalattributeinstance_set.all %}
-            <div class="form-group">
-                <label for="rel_nonfunc" class="col-sm-2 control-label">Atributos Não Funcionais</label>
-                <div class="col-sm-10">
-                    <select id="rel_nonfunc" name="rel_nonfunc" class="form-control" required>
-                        <option disabled selected value> -- selecione uma opção -- </option>
-                        {% for imp in importance %}
-                        <option value="{{imp.0}}" {% if answer.non_functional_ratings == imp.0 %} selected {% endif %}>{{imp.1}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if summary.similar_summaries.all %}
-            <div class="form-group">
-                <label for="rel_examples" class="col-sm-2 control-label">Exemplos</label>
-                <div class="col-sm-10">
-                    <select id="rel_examples" name="rel_examples" class="form-control" required>
-                        <option disabled selected value> -- selecione uma opção -- </option>
-                        {% for imp in importance %}
-                        <option value="{{imp.0}}" {% if answer.examples_rating == imp.0 %} selected {% endif %}>{{imp.1}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="form-group">
-                <label for="observations" class="col-sm-2 control-label">Problema Identificado</label>
-                <div class="col-sm-10">
-                    <textarea id="observations" name="observations" class="form-control" rows="3" required>{{ answer.observations }}</textarea>
+                    <textarea id="observations" name="observations" class="form-control" rows="5" required>{{ answer.observations }}</textarea>
                 </div>
             </div>
         </div>
@@ -362,7 +389,11 @@
     },
     "physics": {
        "minVelocity": 0.75,
-        "solver": "repulsion"
+       "solver": "repulsion"
+    },
+    interaction: {
+       navigationButtons: true,
+       keyboard: true
     }
   };
   var network = new vis.Network(container, data, options);

@@ -46,13 +46,15 @@ def details(request, summary_id):
         for instance in smells_instances:
             result = SummaryAnswerCodeSmell.objects.filter(summary_answer__id=answer.id, instance__id=instance.id)
             if result:
-                instance.is_smell_by_user = result[0].is_smell
+                instance.opinion = result[0].opinion
 
+    opinions = CodeSmellOpinion.objects.all()
     summary.parse_agglomerations()
     context = {'summary': summary,
                'answer':answer,
                'smells_instances':smells_instances,
-               'importance': SummaryAnswer.IMPORTANCE}
+               'importance': SummaryAnswer.IMPORTANCE,
+               'opinions': opinions}
     return render(request, 'summaries/detail.html', context)
 
 
@@ -90,7 +92,9 @@ def save(request, summary_id):
 
     for sinstance in summary.codesmellinstance_set.all():
         smell_answer = get_smell_answer(answer, sinstance)
-        smell_answer.is_smell = 'is_smell_%s' % sinstance.id in request.POST
+        opinion_id = request.POST["smell_opinion_%s" % sinstance.id]
+        opinion = get_object_or_404(CodeSmellOpinion, pk=opinion_id)
+        smell_answer.opinion = opinion
         smell_answer.save()
 
     return HttpResponseRedirect(reverse('summaries:index'))
