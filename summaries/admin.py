@@ -55,6 +55,7 @@ class SummaryAnswerAdmin(admin.ModelAdmin):
     # list_display = ('element_fqn','system')
 
 
+admin.site.register(DesignProblem)
 admin.site.register(CodeSmellOpinion)
 admin.site.register(SummaryAnswerCodeSmell)
 admin.site.register(Experiment)

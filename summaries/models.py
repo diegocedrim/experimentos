@@ -63,6 +63,20 @@ class Summary(models.Model):
             return result[0]
         return None
 
+    def similar_by_smell(self, user):
+        smells_instances = self.codesmellinstance_set.all()
+        already_similar = self.similar_summaries.all()
+        similar = set()
+        for instance in smells_instances:
+            answers = SummaryAnswerCodeSmell.objects.filter(summary_answer__user_id=user.id,
+                                              instance__smell__name=instance.smell.name,
+                                              opinion__is_smell=True)
+            for answer in answers:
+                summary_candidate = answer.summary_answer.summary
+                if summary_candidate not in already_similar and summary_candidate.id != self.id:
+                    similar.add(summary_candidate)
+        return similar
+
     def element_fqn_short(self):
         return self.element_fqn.split(".")[-1]
 
@@ -125,6 +139,15 @@ class CodeSmellInstance(models.Model):
 
 @python_2_unicode_compatible
 class DesignPrinciple(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class DesignProblem(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
 
@@ -225,6 +248,7 @@ class SummaryAnswer(models.Model):
 @python_2_unicode_compatible
 class CodeSmellOpinion(models.Model):
     opinion = models.TextField()
+    is_smell = models.BooleanField(default=False)
 
     def __str__(self):
         return self.opinion

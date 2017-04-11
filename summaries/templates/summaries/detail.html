@@ -261,7 +261,7 @@
         <div class="panel panel-default collapse-caret" id="design_principles">
             <div class="panel-heading">
                 <a class="collapsed collapse-toggle" data-toggle="collapse" href="#design_collapse">
-                    <strong>Atributos de Qualidade e Princípios de Design Violados</strong>
+                    <strong>Atributos de Qualidade e Princípios Violados</strong>
                 </a>
             </div>
             <div class="panel-body collapse" id="design_collapse">
@@ -308,7 +308,7 @@
 
     </div>
 
-    {% if summary.experiment.type.is_complete and summary.similar_summaries.all %}
+    {% if summary.similar_summaries.all or similar_by_smell %}
     <div class="panel panel-default collapse-caret" id="examples">
         <div class="panel-heading">
             <a class="collapsed collapse-toggle" data-toggle="collapse" href="#examples_collapse">
@@ -322,7 +322,13 @@
                     <a href="{% url 'summaries:details' similar.id %}">{{ similar.element_fqn }}</a>
                 </li>
                 {% endfor %}
+                {% for similar in similar_by_smell %}
+                <li>
+                    <a href="{% url 'summaries:details' similar.id %}">{{ similar.element_fqn }}</a>
+                </li>
+                {% endfor %}
             </ul>
+            {% if summary.experiment.type.is_complete %}
              <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -339,6 +345,7 @@
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
     {% endif %}
