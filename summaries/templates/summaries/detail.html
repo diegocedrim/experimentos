@@ -58,7 +58,7 @@
     </h1>
 </div>
 
-<form class="form-horizontal" method="post" action="{% url 'summaries:save' summary.id %}">
+<form class="form-horizontal" id="form_summary" method="post" action="{% url 'summaries:save' summary.id %}">
     {% csrf_token %}
     <div id="basic_information_container">
         {% if summary.experiment.type.is_complete and summary.nodes %}
@@ -80,7 +80,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  name="rel_aglomeracao"
+                            <input type="radio"  name="rel_aglomeracao" data-parsley-ui-enabled="false"
                                    {% if answer.agglomeration_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -118,6 +118,7 @@
                         <div class="radio">
                             <label>
                                 <input type="radio" name="smell_opinion_{{instance.id}}" required
+                                       data-parsley-ui-enabled="false"
                                      {% if opinion.id == instance.opinion.id %} checked {% endif %} value="{{opinion.id}}">
                                 {{ opinion.opinion }}
                             </label>
@@ -138,7 +139,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_smells" name="rel_smells"
+                            <input type="radio"  id="rel_smells" name="rel_smells" data-parsley-ui-enabled="false"
                                    {% if answer.smells_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -188,7 +189,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_nonfunc" name="rel_nonfunc"
+                            <input type="radio"  id="rel_nonfunc" name="rel_nonfunc" data-parsley-ui-enabled="false"
                                    {% if answer.non_functional_ratings == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -245,7 +246,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_dpatterns" name="rel_dpatterns"
+                            <input type="radio"  id="rel_dpatterns" name="rel_dpatterns" data-parsley-ui-enabled="false"
                                    {% if answer.design_patterns_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -294,7 +295,7 @@
                     <div class="panel-body">
                         {% for imp in importance %}
                         <label class="radio-inline">
-                            <input type="radio"  id="rel_dprinciples" name="rel_dprinciples"
+                            <input type="radio"  id="rel_dprinciples" name="rel_dprinciples" data-parsley-ui-enabled="false"
                                    {% if answer.design_principles_rating == imp.0 %} checked {% endif %}
                                    value="{{imp.0}}"/> {{imp.1}}
                         </label>
@@ -331,7 +332,7 @@
                 <div class="panel-body">
                     {% for imp in importance %}
                     <label class="radio-inline">
-                        <input type="radio"  id="rel_examples" name="rel_examples"
+                        <input type="radio"  id="rel_examples" name="rel_examples" data-parsley-ui-enabled="false"
                                {% if answer.examples_rating == imp.0 %} checked {% endif %}
                                value="{{imp.0}}"/> {{imp.1}}
                     </label>
@@ -348,7 +349,9 @@
             <div class="form-group">
                 <label for="observations" class="col-sm-2 control-label">Observações</label>
                 <div class="col-sm-10">
-                    <textarea id="observations" name="observations" class="form-control" rows="5" required>{{ answer.observations }}</textarea>
+                    <textarea id="observations"
+                              data-parsley-required-message="Campo obrigatório"
+                              name="observations" class="form-control" rows="5" required>{{ answer.observations }}</textarea>
                 </div>
             </div>
         </div>

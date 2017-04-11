@@ -36,7 +36,6 @@ function setupRelevanceEvents() {
     var collapsable_panels = ['agg_collapse', 'anomalies_collapse', 'nonfunc_collapse',
         'dpatterns_collapse', 'design_collapse', 'examples_collapse'];
     for (var i = 0; i < collapsable_panels.length; i++) {
-        console.log(collapsable_panels[i]);
         $('#' + collapsable_panels[i]).on('show.bs.collapse', function (el) {
             var element_id = "#" + el.target.id;
             $(element_id + " .radio-inline input[type=radio]").prop('required', true);
@@ -45,8 +44,39 @@ function setupRelevanceEvents() {
 }
 
 $(document).ready(function(){
-    $("form input").on("invalid", function(event) {
-        console.log(event.target.name);
-        $("input[name=" + event.target.name+ "]").closest(".collapse-caret").find("> .panel-body").collapse('show');
+    var parseleyValidator = $('#form_summary').parsley({
+//        successClass: "has-success",
+        errorClass: "has-error",
+        classHandler: function(el) {
+            return el.$element.closest(".form-group");
+        },
+        errorsWrapper: "<span class='help-block'></span>",
+        errorTemplate: "<span></span>"
     });
+
+    parseleyValidator.on('field:validated', function(el) {
+        if (!el.isValid() && el.$element.attr('type') === 'radio') {
+            var panel = el.$element.closest(".panel");
+            panel.removeClass("panel-info");
+            panel.addClass("panel-danger");
+        }
+    });
+
+    parseleyValidator.on('field:success', function(el) {
+        if (el.isValid() && el.$element.attr('type') === 'radio') {
+            var panel = el.$element.closest(".panel");
+            if (el.$element.parent().hasClass("radio-inline")) {
+                panel.addClass("panel-info");
+            }
+            panel.removeClass("panel-danger");
+        }
+    });
+
+    parseleyValidator.on('field:error', function(el) {
+        el.$element.closest(".collapse-caret").find("> .panel-body").collapse('show');
+    });
+
+//    $("input[type=radio]").on("click", function() {
+//        parseleyValidator.validate();
+//    });
 });
