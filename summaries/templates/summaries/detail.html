@@ -173,7 +173,7 @@
                         <td>
                             <p>{{ instance.non_functional_attribute.description }}</p>
                             {% if instance.reason %}
-                            <p><strong>Razão:</strong> {{ instance.reason }}</p>
+                            <p><strong>Razão:</strong> {% autoescape off %}{{instance.reason}}{% endautoescape %}</p>
                             {% endif %}
                         </td>
                     </tr>
@@ -223,7 +223,7 @@
                         <td>
                             <p>{{ instance.design_pattern.description }}</p>
                             {% if instance.reason %}
-                            <p><strong>Razão:</strong> {{ instance.reason }}</p>
+                            <p><strong>Razão:</strong> {% autoescape off %}{{instance.reason}}{% endautoescape %}</p>
                             {% endif %}
                         </td>
                         <td>
@@ -279,7 +279,7 @@
                         <td>
                             <p>{{ instance.design_principle.description }}</p>
                             {% if instance.reason %}
-                            <p><strong>Razão:</strong> {{ instance.reason }}</p>
+                            <p><strong>Razão:</strong> {% autoescape off %}{{instance.reason}}{% endautoescape %}</p>
                             {% endif %}
                         </td>
                     </tr>
