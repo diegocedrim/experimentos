@@ -1,9 +1,9 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -255,6 +255,7 @@ class CodeSmellOpinion(models.Model):
 
 
 #  representa dados associados a uma instancia de um code smell respondidos por um usuario
+@python_2_unicode_compatible
 class SummaryAnswerCodeSmell(models.Model):
     summary_answer = models.ForeignKey(SummaryAnswer, on_delete=models.CASCADE)
     instance = models.ForeignKey(CodeSmellInstance, on_delete=models.CASCADE)
@@ -267,7 +268,11 @@ class SummaryAnswerCodeSmell(models.Model):
         return "%s of %s by %s" % (self.instance.smell.name, self.summary_answer.summary, self.summary_answer.user)
 
 
+@python_2_unicode_compatible
 class UserSubject(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE, null=True)
     on_experiment = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "%s" % self.user
