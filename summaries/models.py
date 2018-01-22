@@ -108,8 +108,9 @@ class Summary(models.Model):
         agg_parts = [i.strip() for i in self.agglomeration.split("\n")]
         for part in agg_parts:
             if ";" not in part:
-                self.nodes.add(part)
-                self.smells[part] = []
+                node = self.parse_node(part)
+                self.nodes.add(node["fqn"])
+                self.smells[node["fqn"]] = node["smells"]
                 continue
 
             el_from, el_to, rel = part.split(";")
