@@ -33,6 +33,16 @@ class Experiment(models.Model):
     name = models.CharField(max_length=200)
     type = models.ForeignKey(ExperimentType, on_delete=models.CASCADE, null=True)
 
+    # se a gente deve mostrar o painel "Qual a relevância desta seção?"
+    should_get_feedback = models.BooleanField(default=True)
+
+    # se True, omite os campos de feedback das secoes de code smells e "principios de qualidade"
+    # tambem troca o nome do campo de principios de qualidade pra Concerns
+    is_bene_experiment = models.BooleanField(default=False)
+
+    # se a gente deve mostrar o painel "Validação do Problema"
+    should_present_validation_field = models.BooleanField(default=True)
+
     def __str__(self):
         if self.system is not None:
             return "%s/%s" % (self.system.name, self.name)
@@ -97,6 +107,11 @@ class Summary(models.Model):
             return
         agg_parts = [i.strip() for i in self.agglomeration.split("\n")]
         for part in agg_parts:
+            if ";" not in part:
+                self.nodes.add(part)
+                self.smells[part] = []
+                continue
+
             el_from, el_to, rel = part.split(";")
             node_from = self.parse_node(el_from)
             self.nodes.add(node_from["fqn"])

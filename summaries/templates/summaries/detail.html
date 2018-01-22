@@ -71,6 +71,7 @@
             <div class="panel-body collapse" id="agg_collapse" style="height: 600px; padding: 0px;">
                 <div id="agg_network"></div>
 
+                {% if summary.experiment.should_get_feedback %}
                 <div class="panel panel-info" style="margin: 15px;">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -87,6 +88,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -129,7 +131,7 @@
                 </dl>
                 <hr/>
                 {% endfor %}
-                {% if summary.experiment.type.is_complete %}
+                {% if summary.experiment.should_get_feedback and not summary.experiment.is_bene_experiment %}
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -180,6 +182,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if summary.experiment.should_get_feedback %}
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -196,6 +199,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -237,6 +241,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if summary.experiment.should_get_feedback %}
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -253,6 +258,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -261,7 +267,11 @@
         <div class="panel panel-default collapse-caret" id="design_principles">
             <div class="panel-heading">
                 <a class="collapsed collapse-toggle" data-toggle="collapse" href="#design_collapse">
-                    <strong>Atributos de Qualidade e Princípios Violados</strong>
+                    {% if summary.experiment.is_bene_experiment %}
+                        <strong>Concerns</strong>
+                    {% else %}
+                        <strong>Atributos de Qualidade e Princípios Violados</strong>
+                    {% endif %}
                 </a>
             </div>
             <div class="panel-body collapse" id="design_collapse">
@@ -286,6 +296,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if summary.experiment.should_get_feedback and not summary.experiment.is_bene_experiment %}
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">
@@ -302,6 +313,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -328,7 +340,7 @@
                 </li>
                 {% endfor %}
             </ul>
-            {% if summary.experiment.type.is_complete %}
+            {% if summary.experiment.should_get_feedback %}
              <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -350,6 +362,7 @@
     </div>
     {% endif %}
 
+    {% if summary.experiment.should_present_validation_field %}
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Validação do Problema</strong></div>
         <div class="panel-body">
@@ -363,6 +376,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <button type="submit" class="btn pull-right btn btn-success btn-lg">Salvar</button>
 
@@ -393,6 +407,9 @@
         {% if edge.2 == 'A' %}
             {from: '{{edge.0}}', to: '{{edge.1}}', color:'#97C2FC'},
         {% endif %}
+        {% if edge.2 == 'C' %}
+            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to', dashes:[4], color:'#FFA500'},
+        {% endif %}
     {% endfor %}
   ]);
 
@@ -418,12 +435,35 @@
     },
     "physics": {
        "minVelocity": 0.75,
-       "solver": "repulsion"
+       "solver": "repulsion",
+        repulsion: {
+          centralGravity: 0.1,
+          springLength: 200,
+          springConstant: 0.05,
+          nodeDistance: 200,
+          damping: 0.09
+        }
     },
     interaction: {
        navigationButtons: true,
        keyboard: true
-    }
+    },
+    layout: {
+        randomSeed: undefined,
+        improvedLayout:true,
+        hierarchical: {
+          enabled:true,
+          levelSeparation: 100,
+          nodeSpacing: 100,
+          treeSpacing: 200,
+          blockShifting: true,
+          edgeMinimization: true,
+          parentCentralization: false,
+          direction: 'UD',        // UD, DU, LR, RL
+          sortMethod: 'directed'   // hubsize, directed
+        }
+    },
+
   };
   var network = new vis.Network(container, data, options);
 

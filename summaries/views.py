@@ -171,7 +171,7 @@ def save(request, summary_id):
     answer.design_principles_rating = request.POST.get('rel_dprinciples', None)
     answer.examples_rating = request.POST.get('rel_examples', None)
     answer.non_functional_ratings = request.POST.get('rel_nonfunc', None)
-    answer.observations = request.POST['observations']
+    answer.observations = request.POST.get('observations', '')
     answer.save()
 
     if not summary.experiment.type.is_complete:
