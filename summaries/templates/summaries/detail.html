@@ -408,7 +408,7 @@
             {from: '{{edge.0}}', to: '{{edge.1}}', color:'#97C2FC'},
         {% endif %}
         {% if edge.2 == 'C' %}
-            {from: '{{edge.0}}', to: '{{edge.1}}', arrows:'to', dashes:[4], color:'#FFA500'},
+            {from: '{{edge.0}}', to: '{{edge.1}}', dashes:[1, 4], color:'#FFA500'},
         {% endif %}
     {% endfor %}
   ]);
@@ -452,7 +452,7 @@
         randomSeed: undefined,
         improvedLayout:true,
         hierarchical: {
-          enabled:true,
+          enabled:false,
           levelSeparation: 100,
           nodeSpacing: 100,
           treeSpacing: 200,
@@ -462,8 +462,7 @@
           direction: 'UD',        // UD, DU, LR, RL
           sortMethod: 'directed'   // hubsize, directed
         }
-    },
-
+    }
   };
   var network = new vis.Network(container, data, options);
 
